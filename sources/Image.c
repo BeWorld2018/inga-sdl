@@ -36,10 +36,10 @@ void FreeAnimation(Animation *animation);
 Image *LoadImage(const char *filename, SDL_Palette *defaultPalette, bool createMask, bool keepSurface) {
     Image *image = NULL;
     SDL_Renderer *renderer = GetGlobalRenderer();
-    
+
     char path[FILENAME_MAX];
     GameFilePath(path, "BitMaps", filename, "ibm");
-    
+
     SDL_RWops *file = SDL_RWFromFile(path, "rb");
     if (!file) {
         printf("LoadImage: %s\n", SDL_GetError());
@@ -57,7 +57,7 @@ Image *LoadImage(const char *filename, SDL_Palette *defaultPalette, bool createM
             SDL_ReadU8(file);
             SDL_ReadBE32(file);
             SDL_ReadBE32(file);
-            
+
             IBMColor *ibmColors = NULL;
             Animation *animation = NULL;
             if (flags & 1) {
@@ -83,7 +83,7 @@ Image *LoadImage(const char *filename, SDL_Palette *defaultPalette, bool createM
                 int ticks = (pausesPerFrame + 1) * 50; // based on 20 FPS
                 animation = CreateAnimationFromStrip(numFrames, direction, frameWidth, frameHeight, pivotX, pivotY, ticks);
             }
-            
+
             const size_t size = bytesPerRow * height;
             Uint8 *pixels = calloc(sizeof(Uint8), size);
             if (!pixels) {
@@ -161,7 +161,7 @@ Image *LoadMaskedImage(const char *filename, Image *sourceImage) {
     if (!sourceImage || !sourceImage->surface) return NULL;
     Image *image = NULL;
     SDL_Renderer *renderer = GetGlobalRenderer();
-    
+
     // truncate after "_": For example image files "House", "House_1", "House_2" all use mask file "House"
     char maskFilename[FILENAME_MAX];
     strcpy(maskFilename, filename);
@@ -169,10 +169,10 @@ Image *LoadMaskedImage(const char *filename, Image *sourceImage) {
     if (p) {
         *p = 0;
     }
-    
+
     char path[FILENAME_MAX];
     GameFilePath(path, "BitMaps", maskFilename, "imp");
-    
+
     SDL_RWops *file = SDL_RWFromFile(path, "rb");
     if (!file) {
         printf("LoadMaskedImage: %s\n", SDL_GetError());
@@ -184,7 +184,7 @@ Image *LoadMaskedImage(const char *filename, Image *sourceImage) {
             Uint16 width = SDL_ReadBE16(file);
             Uint16 height = SDL_ReadBE16(file);
             Uint32 size = SDL_ReadBE32(file);
-            
+
             Uint8 *pixels = calloc(sizeof(Uint8), size);
             if (!pixels) {
                 printf("LoadMaskedImage: Out of memory\n");
@@ -199,7 +199,7 @@ Image *LoadMaskedImage(const char *filename, Image *sourceImage) {
                     SDL_SetPaletteColors(surfacePalette, colors, 0, 2);
                     Uint32 key = SDL_MapRGB(surface->format, 255, 255, 255);
                     SDL_SetColorKey(surface, SDL_TRUE, key);
-                    
+
                     SDL_Surface *targetSurface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_RGBA32);
                     if (!targetSurface) {
                         printf("LoadMaskedImage: Create surface failed\n");
@@ -208,7 +208,7 @@ Image *LoadMaskedImage(const char *filename, Image *sourceImage) {
                         SDL_BlitSurface(surface, NULL, targetSurface, NULL);
                         Uint32 key2 = SDL_MapRGB(targetSurface->format, 255, 0, 255);
                         SDL_SetColorKey(targetSurface, SDL_TRUE, key2);
-                        
+
                         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, targetSurface);
                         if (!texture) {
                             printf("LoadMaskedImage: Create texture failed\n");
@@ -240,16 +240,18 @@ void FreeImage(Image *image) {
 }
 
 void DrawImage(Image *image, Vector position) {
-    if (!image) return;
+    if (!image)
+        return;
+
     SDL_Renderer *renderer = GetGlobalRenderer();
-    SDL_Rect src = {0, 0, image->width, image->height};
-    SDL_Rect dst = {position.x, position.y, image->width, image->height};
+    const SDL_Rect src = {1, 1, image->width - 2, image->height - 2};
+    const SDL_Rect dst = {position.x, position.y, image->width - 2, image->height - 2};
     SDL_RenderCopy(renderer, image->texture, &src, &dst);
 }
 
 Animation *CreateAnimationFromStrip(int numFrames, enum StripDirection direction, int width, int height, int pivotX, int pivotY, int ticks) {
     Animation *animation = NULL;
-    
+
     Frame *frames = calloc(numFrames, sizeof(Frame));
     if (frames) {
         SDL_Rect rect = {0, 0, width, height};
@@ -286,9 +288,15 @@ void FreeAnimation(Animation *animation) {
 }
 
 void DrawAnimationFrame(Image *image, Vector position, int index) {
-    if (!image || !image->animation) return;
+    if (!image || !image->animation)
+        return;
+
     SDL_Renderer *renderer = GetGlobalRenderer();
-    Frame *frame = &image->animation->frames[index];
-    SDL_Rect dst = {position.x - frame->pivot.x, position.y - frame->pivot.y, frame->sourceRect.w, frame->sourceRect.h};
-    SDL_RenderCopy(renderer, image->texture, &frame->sourceRect, &dst);
+    const Frame *frame = &image->animation->frames[index];
+    const SDL_Rect dst = {position.x - frame->pivot.x + 1,
+                          position.y - frame->pivot.y + 1,
+                          frame->sourceRect.w - 2,
+                          frame->sourceRect.h - 2};
+    const SDL_Rect src = {frame->sourceRect.x + 1, frame->sourceRect.y + 1, frame->sourceRect.w - 2, frame->sourceRect.h - 2};
+    SDL_RenderCopy(renderer, image->texture, &src, &dst);
 }
