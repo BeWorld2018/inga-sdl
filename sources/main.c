@@ -202,6 +202,7 @@ int main(int argc, char **argv) {
         UpdateGame(game, deltaTicks);
 //        SDL_RenderClear(renderer);
 //        SDL_SetRenderTarget(renderer, prerenderTexture);
+        SDL_SetRenderTarget(renderer, NULL);
         DrawGame(game);
 
 //        SDL_SetRenderTarget(renderer, NULL);

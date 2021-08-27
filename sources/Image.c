@@ -239,13 +239,13 @@ void FreeImage(Image *image) {
     free(image);
 }
 
-void DrawImage(Image *image, Vector position) {
+void DrawImage(const Image *image, const Vector position) {
     if (!image)
         return;
 
     SDL_Renderer *renderer = GetGlobalRenderer();
     const SDL_Rect src = {1, 1, image->width - 2, image->height - 2};
-    const SDL_Rect dst = {position.x, position.y, image->width - 2, image->height - 2};
+    const SDL_Rect dst = {(int) (position.x + 1.f), (int) (position.y + 1.f), image->width - 2, image->height - 2};
     SDL_RenderCopy(renderer, image->texture, &src, &dst);
 }
 
@@ -287,14 +287,14 @@ void FreeAnimation(Animation *animation) {
     free(animation);
 }
 
-void DrawAnimationFrame(Image *image, Vector position, int index) {
+void DrawAnimationFrame(const Image *image, const Vector position, const int index) {
     if (!image || !image->animation)
         return;
 
     SDL_Renderer *renderer = GetGlobalRenderer();
     const Frame *frame = &image->animation->frames[index];
-    const SDL_Rect dst = {position.x - frame->pivot.x + 1,
-                          position.y - frame->pivot.y + 1,
+    const SDL_Rect dst = {(int)(position.x - frame->pivot.x + 1.f),
+                          (int)(position.y - frame->pivot.y + 1.f),
                           frame->sourceRect.w - 2,
                           frame->sourceRect.h - 2};
     const SDL_Rect src = {frame->sourceRect.x + 1, frame->sourceRect.y + 1, frame->sourceRect.w - 2, frame->sourceRect.h - 2};

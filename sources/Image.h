@@ -54,7 +54,7 @@ enum StripDirection {
 Image *LoadImage(const char *filename, SDL_Palette *defaultPalette, bool createMask, bool keepSurface);
 Image *LoadMaskedImage(const char *filename, Image *sourceImage);
 void FreeImage(Image *image);
-void DrawImage(Image *image, Vector position);
-void DrawAnimationFrame(Image *image, Vector position, int index);
+void DrawImage(const Image *image, Vector position);
+void DrawAnimationFrame(const Image *image, Vector position, int index);
 
 #endif /* Image_h */
