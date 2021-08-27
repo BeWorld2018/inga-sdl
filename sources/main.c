@@ -126,11 +126,11 @@ int main(int argc, char **argv) {
     }
     
     SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-    prerenderTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-    if (!prerenderTexture) {
-        printf("SDL_CreateTexture: %s\n", SDL_GetError());
-        goto out;
-    }
+//    prerenderTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+//    if (!prerenderTexture) {
+//        printf("SDL_CreateTexture: %s\n", SDL_GetError());
+//        goto out;
+//    }
     
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
         printf("Mix_OpenAudio: %s\n", Mix_GetError());
