@@ -112,7 +112,12 @@ int main(int argc, char **argv) {
         goto out;
     }
 
+    #ifdef SDL2_WORKAROUND
+    renderer = NULL; // disabled HW renderer on Morphos because of a bug in OpenGL (aplpha does not work)
+    #else
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    #endif
+    
     if(!renderer) {
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
         printf("using software renderer\n");
