@@ -52,6 +52,7 @@ typedef struct GameState {
     Vector startDirection;
     unsigned long playtimeTicks;
     int textSpeed;
+    bool hasChangedSinceSave;
 } GameState;
 
 GameState *CreateGameState(void);
@@ -70,6 +71,6 @@ void AddInventoryItem(GameState *gameState, int id, const char *name, const char
 void RemoveInventoryItem(GameState *gameState, int id);
 
 void UpdatePlaytime(GameState *gameState, int deltaTicks);
-void GameStateName(GameState *gameState, char *name);
+void GameStateName(GameState *gameState, char *name, bool isAutosave);
 
 #endif /* GameState_h */

@@ -126,6 +126,8 @@ void SaveGameState(GameState *gameState, const char *filename, GameConfig *confi
         SDL_WriteU8(file, gameState->textSpeed);
         
         SDL_RWclose(file);
+        
+        gameState->hasChangedSinceSave = false;
     }
 }
 
@@ -264,13 +266,14 @@ void UpdatePlaytime(GameState *gameState, int deltaTicks) {
     gameState->playtimeTicks += deltaTicks;
 }
 
-void GameStateName(GameState *gameState, char *name) {
+void GameStateName(GameState *gameState, char *name, bool isAutosave) {
     unsigned long seconds = gameState->playtimeTicks / 1000;
     unsigned long minutes = seconds / 60;
     unsigned long hours = minutes / 60;
+    char *title = isAutosave ? "Automatisch" : "Spielzeit";
     if (hours > 0) {
-        sprintf(name, "Spielzeit %luh %lum %lus", hours, minutes % 60, seconds % 60);
+        sprintf(name, "%s %luh %lum %lus", title, hours, minutes % 60, seconds % 60);
     } else {
-        sprintf(name, "Spielzeit %lum %lus", minutes % 60, seconds % 60);
+        sprintf(name, "%s %lum %lus", title, minutes % 60, seconds % 60);
     }
 }

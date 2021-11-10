@@ -23,6 +23,9 @@
 #include "Global.h"
 #include "Game.h"
 
+const int MainPersonID = 0;
+const int ForegroundID = 0xFFFF;
+
 void SetElementImageFromSet(Element *element, int imageId);
 void ElementFreeAction(Element *element);
 void UpdateMove(Element *element, int deltaTicks);
@@ -151,6 +154,9 @@ bool IsPointInElement(Element *element, int x, int y) {
         }
     }
     if (rect.w > 0) {
+#ifdef TOUCH
+        SetRectToMinimumSize(&rect, 33);
+#endif
         return x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h;
     }
     return false;
@@ -265,8 +271,21 @@ void ElementTalk(Element *element, const char *text, int imageId, Font *font, in
     Frame *frame = &element->image->animation->frames[element->frameIndex];
     SDL_Color color = {255, 255, 255, 255};
     element->talkImage = CreateImageFromText(text, font, color);
-    element->talkOffset = element->talkImage ? MakeVector(element->talkImage->width * -0.5, -frame->pivot.y - 24) : MakeVector(0, 0);
+    if (element->talkImage) {
+        if (element->position.y - frame->pivot.y > 0) {
+            // top of head
+            element->talkOffset = MakeVector(element->talkImage->width * -0.5, -frame->pivot.y - 32);
+        } else {
+            // below feet
+            element->talkOffset = MakeVector(element->talkImage->width * -0.5, frame->sourceRect.h - frame->pivot.y);
+        }
+    }
     element->talkTicks = (int)strlen(text) * 30 * (textSpeed + 1) + 1000;
+}
+
+void ElementSkipTalk(Element *element) {
+    if (!element || element->action != ElementActionTalk) return;
+    element->talkTicks = 0;
 }
 
 void ElementAnimate(Element *element, int imageId, int loopCount) {

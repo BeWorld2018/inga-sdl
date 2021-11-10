@@ -62,9 +62,9 @@ void FreeMenu(Menu *menu) {
     free(menu);
 }
 
-void OpenMenu(Menu *menu) {
+void OpenMenu(Menu *menu, int startItem) {
     if (!menu) return;
-    HandleMenuItem(menu, 0);
+    HandleMenuItem(menu, startItem);
     SDL_SetCursor(menu->game->cursorNormal);
     FadeIn(&menu->fader);
 }
@@ -75,19 +75,21 @@ void CloseMenu(Menu *menu) {
     FadeOut(&menu->fader);
 }
 
-bool HandleMouseInMenu(Menu *menu, const int x, const int y, const int buttonIndex) {
+bool HandleMouseInMenu(Menu *menu, const int x, const int y, const ButtonState buttonState) {
     if (!menu || menu->fader.state == FaderStateClosed) return false;
     menu->focusedItem = NULL;
-    MenuItem *item = menu->rootItem;
-    while (item) {
-        if (y >= (int)item->position.y && y < (int)item->position.y + item->image->height) {
-            menu->focusedItem = item;
-            break;
+    if (CanHover(buttonState)) {
+        MenuItem *item = menu->rootItem;
+        while (item) {
+            if (y >= (int)item->position.y - 8 && y < (int)item->position.y + item->image->height + 8) {
+                menu->focusedItem = item;
+                break;
+            }
+            item = item->next;
         }
-        item = item->next;
-    }
-    if (buttonIndex == SDL_BUTTON_LEFT && menu->focusedItem) {
-        HandleMenuItem(menu, menu->focusedItem->id);
+        if (buttonState == SelectionButtonState() && menu->focusedItem) {
+            HandleMenuItem(menu, menu->focusedItem->id);
+        }
     }
     return true;
 }
@@ -214,7 +216,9 @@ void HandleMenuItem(Menu *menu, int id) {
             AddMenuItem(menu, 3, "Spielstand speichern");
             AddMenuItem(menu, 6, MenuTextSpeed[menu->game->gameState->textSpeed]);
             AddMenuItem(menu, 1, "Spiel neu beginnen");
+#ifndef AUTOSAVE
             AddMenuItem(menu, 5, "Spiel beenden");
+#endif
             RefreshMenu(menu);
             break;
         case 1:
@@ -248,6 +252,9 @@ void HandleMenuItem(Menu *menu, int id) {
             break;
         case 5:
             SetMenuTitle(menu, "Willst du das Spiel wirklich beenden?");
+            if (menu->game->gameState->hasChangedSinceSave) {
+                AddMenuItem(menu, 3, "Spielstand speichern");
+            }
             AddMenuItem(menu, 50, "Beenden");
             AddMenuItem(menu, 0, "Abbruch");
             RefreshMenu(menu);
@@ -266,21 +273,12 @@ void HandleMenuItem(Menu *menu, int id) {
             if (id >= 20 && id < 30) {
                 // load
                 int slot = id - 20;
-                char filename[FILE_NAME_SIZE];
-                sprintf(filename, "slot_%d", slot);
-                GameState *gameState = LoadGameState(filename, menu->game->config);
-                SetGameState(menu->game, gameState);
+                LoadGameSlot(menu->game, slot);
                 CloseMenu(menu);
             } else if (id >= 30 && id < 40) {
                 // save
                 int slot = id - 30;
-                char filename[FILE_NAME_SIZE];
-                char slotname[SLOT_NAME_SIZE];
-                sprintf(filename, "slot_%d", slot);
-                SaveGameState(menu->game->gameState, filename, menu->game->config);
-                GameStateName(menu->game->gameState, slotname);
-                SetSlotName(menu->game->slotList, slot, slotname, menu->game->config);
-                
+                SaveGameSlot(menu->game, slot);
                 SetMenuTitle(menu, "Der Spielstand wurde gespeichert.");
                 AddMenuItem(menu, 0, "OK");
                 RefreshMenu(menu);

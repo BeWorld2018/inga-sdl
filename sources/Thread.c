@@ -490,11 +490,13 @@ unsigned long LaufeINGA(Thread *thread, Game *game, unsigned long ptr, bool *wie
         unsigned long locationPtr = peekl(script, ptr + 2);
         Label *label = GetLabelWithPtr(game->script, locationPtr);
         if (label) {
-            printf("Label for ptr %lu: %s\n", locationPtr, label->name);
             strcpy(game->gameState->locationLabel, label->name);
         }
         game->gameState->startPosition = MakeVector(peekv(game, ptr + 6), peekv(game, ptr + 8));
         game->gameState->startDirection = DirectionForSide(peekv(game, ptr + 10));
+#ifdef AUTOSAVE
+        SaveGameSlot(game, 0);
+#endif
         return(locationPtr);
     }
     if (opc == 43) { //SpringeSub.
@@ -601,7 +603,16 @@ unsigned long LaufeINGA(Thread *thread, Game *game, unsigned long ptr, bool *wie
         }
         StopSoundLoop(game->soundManager);
         RefreshGameState(game);
-        game->sequence = LoadSequence(peeks(script, ptr + 2));
+        const char *filename = peeks(script, ptr + 2);
+#ifdef TOUCH
+        if (strcmp(filename, "SeqTutorial") == 0) {
+            game->sequence = LoadSequence("SeqTutorialMobile");
+        } else {
+            game->sequence = LoadSequence(filename);
+        }
+#else
+        game->sequence = LoadSequence(filename);
+#endif
         *wieder = false;
         return(ptr + 6);
     }
@@ -784,9 +795,10 @@ unsigned long LaufeINGA(Thread *thread, Game *game, unsigned long ptr, bool *wie
     }
     if (opc == 81) { //SpielEnde.
 //        FadeOut(4);
-        SetShouldQuit();
+//        SetShouldQuit();
+        SetGameState(game, CreateGameState());
         *wieder = false;
-        return ptr;
+        return thread->ptr;
     }
     if (opc == 89) { //HoleZeit.
 //        if (peekv(game, ptr + 2) > 0) SetzeVar(peekv(game, ptr + 2), (WORD)zeit.stunden);
