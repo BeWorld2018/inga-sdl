@@ -69,7 +69,7 @@ void PrintHelp(void) {
            "  -v, --version\n");
 }
 
-#define VERSION "Ermentrud 1.0 (10.09.2021)"
+#define VERSION "Ermentrud 1.0 (10.11.2021)"
 
 #if defined __amigaos4__ || defined __morphos__
 unsigned char versiontag[] = "\0$VER: " VERSION;
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
         PrintVersion();
         exit(EXIT_SUCCESS);
     }
-    
+
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Texture *prerenderTexture = NULL;
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    
+
     Uint32 windowFlags = SDL_WINDOW_SHOWN;
     if (!arguments.window) {
         windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     if (arguments.borderless) {
         windowFlags |= SDL_WINDOW_BORDERLESS;
     }
-    
+
     window = SDL_CreateWindow(config->gameName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
     if (!window) {
         printf("SDL_CreateWindow: %s\n", SDL_GetError());
@@ -129,15 +129,16 @@ int main(int argc, char **argv) {
     renderer = NULL; // disabled HW renderer on Morphos because of a bug in OpenGL (aplpha does not work)
 #else
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if(!renderer) {
+#endif
+    if (!renderer) {
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     }
-    
+
     if (!renderer) {
         printf("SDL_CreateRenderer: %s\n", SDL_GetError());
         goto out;
     }
-    
+
     SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 //    prerenderTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
 //    if (!prerenderTexture) {
@@ -183,9 +184,9 @@ int main(int argc, char **argv) {
                     SafeQuit(game);
                     break;
 #ifdef AUTOSAVE
-                case SDL_APP_WILLENTERBACKGROUND:
-                    AutosaveIfPossible(game);
-                    break;
+                    case SDL_APP_WILLENTERBACKGROUND:
+                        AutosaveIfPossible(game);
+                        break;
 #endif
                 case SDL_MOUSEMOTION:
                     mouseX = event.motion.x;
