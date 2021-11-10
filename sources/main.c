@@ -66,7 +66,7 @@ void PrintHelp(void) {
            "  -h, --help         show help message and quit\n"
            "  -w, --window       enable window mode\n"
            "  -b, --borderless   removes window border (for better screenshots)\n"
-           "  -v, --version\n");
+           "  -v, --version      show version\n");
 }
 
 #define VERSION "Ermentrud 1.0 (10.11.2021)"
