@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
 
         HandleMouseInGame(game, mouseX, mouseY, buttonState);
         UpdateGame(game, deltaTicks);
-//        SDL_RenderClear(renderer);
+        SDL_RenderClear(renderer);
 //        SDL_SetRenderTarget(renderer, prerenderTexture);
         SDL_SetRenderTarget(renderer, NULL);
         DrawGame(game);
