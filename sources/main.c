@@ -69,7 +69,7 @@ void PrintHelp(void) {
            "  -v, --version      show version\n");
 }
 
-#define VERSION "Ermentrud 1.0 (10.11.2021)"
+#define VERSION "Ermentrud 1.0 (11.12.2021)"
 
 #if defined __amigaos4__ || defined __morphos__
 unsigned char versiontag[] = "\0$VER: " VERSION;
