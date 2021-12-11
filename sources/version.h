@@ -1,4 +1,6 @@
-#ifdef __amigaos4__
-#define DATE "(07.11.2021)"
-#define VERSTAG "\0$VER: Ermentrud 1.0 " DATE ""
+#ifndef VERSION_H
+#define VERSION_H
+#define DATE "(11.12.2021)"
+#define VERSION "Ermentrud 1.0 " DATE
+#define VERSTAG "\0$VER: " VERSION
 #endif

@@ -28,10 +28,10 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#ifdef __amigaos4__
 #include "version.h"
-static const char* __attribute__((used)) version = VERSTAG;
+
+#if defined __amigaos4__ || defined __morphos__
+unsigned char versiontag[] = "\0$VER: " VERSTAG;
 #endif
 
 // SDL_TEXTINPUTEVENT_TEXT_SIZE (0-terminator is already included)
@@ -68,12 +68,6 @@ void PrintHelp(void) {
            "  -b, --borderless   removes window border (for better screenshots)\n"
            "  -v, --version      show version\n");
 }
-
-#define VERSION "Ermentrud 1.0 (11.12.2021)"
-
-#if defined __amigaos4__ || defined __morphos__
-unsigned char versiontag[] = "\0$VER: " VERSION;
-#endif
 
 void PrintVersion(void) {
     printf(VERSION"\n");
