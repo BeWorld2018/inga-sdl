@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
     Mix_CloseAudio();
 
     out:
-    SDL_DestroyTexture(prerenderTexture);
+    if (prerenderTexture) SDL_DestroyTexture(prerenderTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
